@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
+require('dotenv/config');
 
 const UserModel = require('../models/User');
 
@@ -18,7 +20,7 @@ router.post(`/`, async (req, res) => {
         name: req.body.name,
         email: req.body.email,
         username: req.body.username,
-        passwordHashed: req.body.passwordHashed,
+        passwordHashed: bcrypt.hashSync(req.body.password, 10),
         phone: req.body.phone,
         isAdmin: req.body.isAdmin,
         address: req.body.address,

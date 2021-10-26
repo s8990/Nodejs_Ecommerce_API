@@ -8,6 +8,7 @@
 -   mongoose
 -   morgan
 -   prettier
+-   bcryptjs
 
 ## devDependencies:
 
