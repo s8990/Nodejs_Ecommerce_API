@@ -6,7 +6,7 @@ require('dotenv/config');
 const UserModel = require('../models/User');
 
 router.get(`/`, async (req, res) => {
-    const users = await UserModel.find();
+    const users = await UserModel.find().select('name username phone email');
 
     if (!users) {
         res.status(500).json({ success: false });
@@ -15,12 +15,25 @@ router.get(`/`, async (req, res) => {
     res.status(200).json(users);
 });
 
+router.get(`/:id`, async (req, res) => {
+    const user = await UserModel.findById(req.params.id).select('-password');
+
+    if (!user) {
+        res.status(500).json({
+            success: false,
+            message: 'User not found!',
+        });
+    }
+
+    res.status(200).json(user);
+});
+
 router.post(`/`, async (req, res) => {
     let user = new UserModel({
         name: req.body.name,
         email: req.body.email,
         username: req.body.username,
-        passwordHashed: bcrypt.hashSync(req.body.password, 10),
+        password: bcrypt.hashSync(req.body.password, 10),
         phone: req.body.phone,
         isAdmin: req.body.isAdmin,
         address: req.body.address,
