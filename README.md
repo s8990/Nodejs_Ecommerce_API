@@ -10,6 +10,7 @@
 -   prettier
 -   bcryptjs
 -   jsonwebtoken
+-   express-jwt
 
 ## devDependencies:
 
