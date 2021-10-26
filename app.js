@@ -13,6 +13,7 @@ app.use(express.json());
 app.use(morgan('tiny'));
 
 // Routes
+const authRoutes = require('./routes/auth');
 const categoriesRoutes = require('./routes/categories');
 const productsRoutes = require('./routes/products');
 const usersRoutes = require('./routes/users');
@@ -23,6 +24,7 @@ const PORT = process.env.PORT;
 const CONNECTION_STRING = process.env.CONNECTION_STRING;
 
 // Routes
+app.use(`${api}/auth`, authRoutes);
 app.use(`${api}/categories`, categoriesRoutes);
 app.use(`${api}/products`, productsRoutes);
 app.use(`${api}/users`, usersRoutes);

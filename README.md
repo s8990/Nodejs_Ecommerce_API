@@ -9,6 +9,7 @@
 -   morgan
 -   prettier
 -   bcryptjs
+-   jsonwebtoken
 
 ## devDependencies:
 
