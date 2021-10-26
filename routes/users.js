@@ -28,6 +28,25 @@ router.get(`/:id`, async (req, res) => {
     res.status(200).json(user);
 });
 
+router.get(`/get/count`, async (req, res) => {
+    try {
+        const userCount = await UserModel.countDocuments((count) => count);
+
+        if (!userCount) {
+            res.status(500).json({ success: false });
+        }
+
+        res.status(200).json({
+            userCount: userCount,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error,
+        });
+    }
+});
+
 router.post(`/`, async (req, res) => {
     let user = new UserModel({
         name: req.body.name,
@@ -48,6 +67,25 @@ router.post(`/`, async (req, res) => {
     }
 
     res.send(user);
+});
+
+router.delete('/:id', (req, res) => {
+    UserModel.findByIdAndRemove(req.params.id)
+        .then((user) => {
+            if (user) {
+                return res.status(200).json({
+                    success: true,
+                    message: 'The user is deleted',
+                });
+            } else {
+                return res
+                    .status(404)
+                    .json({ success: false, message: 'User not found!' });
+            }
+        })
+        .catch((error) => {
+            return res.status(400).json({ success: false, error: error });
+        });
 });
 
 module.exports = router;

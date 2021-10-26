@@ -12,6 +12,10 @@ function authJwt() {
         path: [
             { url: /\/api\/v1\/products(.*)/, methods: ['GET', 'OPTIONS'] },
             { url: /\/api\/v1\/categories(.*)/, methods: ['GET', 'OPTIONS'] },
+            {
+                url: /\/api\/v1\/orders(.*)/,
+                methods: ['GET', 'OPTIONS', 'POST'],
+            },
             '/api/v1/auth/login',
             '/api/v1/auth/register',
         ],
