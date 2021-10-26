@@ -31,8 +31,8 @@ router.get(`/:id`, async (req, res) => {
 router.post(`/`, async (req, res) => {
     let user = new UserModel({
         name: req.body.name,
-        email: req.body.email,
         username: req.body.username,
+        email: req.body.email,
         password: bcrypt.hashSync(req.body.password, 10),
         phone: req.body.phone,
         isAdmin: req.body.isAdmin,
