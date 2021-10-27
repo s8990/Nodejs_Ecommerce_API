@@ -10,6 +10,7 @@
 -   prettier
 -   bcryptjs
 -   jsonwebtoken
+-   jsonwebtoken
 -   express-jwt
 -   multer
 
