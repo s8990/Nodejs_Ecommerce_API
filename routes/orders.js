@@ -73,4 +73,20 @@ router.post(`/`, async (req, res) => {
     }
 });
 
+router.put('/:id', async (req, res) => {
+    const order = await OrderModel.findByIdAndUpdate(
+        req.params.id,
+        {
+            status: req.body.status,
+        },
+        { new: true }
+    );
+
+    if (!order) {
+        return res.status(500).send('Updating order failed!');
+    }
+
+    res.send(order);
+});
+
 module.exports = router;
