@@ -91,8 +91,12 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', (req, res) => {
     OrderModel.findByIdAndRemove(req.params.id)
-        .then((order) => {
+        .then(async (order) => {
             if (order) {
+                await order.orderItems.map(async (orderItem) => {
+                    await OrderItemModel.findByIdAndRemove(orderItem);
+                });
+
                 return res.status(200).json({
                     success: true,
                     message: 'The order is deleted',
@@ -104,7 +108,7 @@ router.delete('/:id', (req, res) => {
             }
         })
         .catch((error) => {
-            return res.status(400).json({ success: false, error: error });
+            return res.status(500).json({ success: false, error: error });
         });
 });
 
