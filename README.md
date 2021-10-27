@@ -11,6 +11,7 @@
 -   bcryptjs
 -   jsonwebtoken
 -   express-jwt
+-   multer
 
 ## devDependencies:
 
