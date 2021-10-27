@@ -24,7 +24,10 @@ yarn-debug.log*
 yarn-error.log*
 
 # custom
+.env
+.prettierrc
 package-lock.json
 yarn.lock
+temp*
 
 config/
