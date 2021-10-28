@@ -1,5 +1,11 @@
 const mongoose = require('mongoose');
 const ProductModel = require('../models/Product');
+const CategoryModel = require('../models/Category');
+
+const {
+    validateCreateProduct,
+    validateEditProduct,
+} = require('../helpers/validators/ProductValidator');
 
 const getProducts = async (req, res) => {
     // Query parameters: /api/v1/products?categories=12,13
@@ -34,6 +40,11 @@ const getProductById = async (req, res) => {
 
 const addProduct = async (req, res) => {
     try {
+        const { error } = validateCreateProduct(req.body);
+        if (error) {
+            return res.status(400).json({ error: error.message });
+        }
+
         const category = await CategoryModel.findById(req.body.category);
         if (!category) {
             return res.status(400).send('Invalid category!');
@@ -79,54 +90,68 @@ const addProduct = async (req, res) => {
 };
 
 const editProduct = async (req, res) => {
-    if (!mongoose.isValidObjectId(req.params.id)) {
-        res.status(400).send('Invalid Product Id');
+    try {
+        const { error } = validateCreateProduct(req.body);
+        if (error) {
+            return res.status(400).json({ error: error.message });
+        }
+
+        if (!mongoose.isValidObjectId(req.params.id)) {
+            res.status(400).send('Invalid Product Id');
+        }
+
+        const category = await CategoryModel.findById(req.body.category);
+        if (!category) {
+            return res.status(400).send('Invalid category!');
+        }
+
+        const product = await ProductModel.findById(req.params.id);
+        if (!product) {
+            return res.status(400).send('Invalid product!');
+        }
+
+        const file = req.file;
+        let imagePath;
+
+        if (file) {
+            const fileName = req.file.filename;
+            const basePath = `${req.protocol}://${req.get(
+                'host'
+            )}/public/uploads`;
+            imagePath = `${basePath}${fileName}`;
+        } else {
+            imagePath = product.image;
+        }
+
+        const updatedProduct = await ProductModel.findByIdAndUpdate(
+            req.params.id,
+            {
+                name: req.body.name,
+                description: req.body.description,
+                richDescription: req.body.richDescription,
+                image: imagePath,
+                brand: req.body.brand,
+                price: req.body.price,
+                countInStock: req.body.countInStock,
+                rating: req.body.rating,
+                numReviews: req.body.numReviews,
+                isFeatured: req.body.isFeatured,
+                category: req.body.category,
+            },
+            { new: true }
+        );
+
+        if (!updatedProduct) {
+            return res.status(500).send('Updating product failed!');
+        }
+
+        res.send(updatedProduct);
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            error: error,
+        });
     }
-
-    const category = await CategoryModel.findById(req.body.category);
-    if (!category) {
-        return res.status(400).send('Invalid category!');
-    }
-
-    const product = await ProductModel.findById(req.params.id);
-    if (!product) {
-        return res.status(400).send('Invalid product!');
-    }
-
-    const file = req.file;
-    let imagePath;
-
-    if (file) {
-        const fileName = req.file.filename;
-        const basePath = `${req.protocol}://${req.get('host')}/public/uploads`;
-        imagePath = `${basePath}${fileName}`;
-    } else {
-        imagePath = product.image;
-    }
-
-    const updatedProduct = await ProductModel.findByIdAndUpdate(
-        req.params.id,
-        {
-            name: req.body.name,
-            description: req.body.description,
-            richDescription: req.body.richDescription,
-            image: imagePath,
-            brand: req.body.brand,
-            price: req.body.price,
-            countInStock: req.body.countInStock,
-            rating: req.body.rating,
-            numReviews: req.body.numReviews,
-            isFeatured: req.body.isFeatured,
-            category: req.body.category,
-        },
-        { new: true }
-    );
-
-    if (!updatedProduct) {
-        return res.status(500).send('Updating product failed!');
-    }
-
-    res.send(updatedProduct);
 };
 
 const deleteProduct = (req, res) => {

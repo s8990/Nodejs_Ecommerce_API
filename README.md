@@ -13,6 +13,8 @@
 -   jsonwebtoken
 -   express-jwt
 -   multer
+-   joi
+-   joi-objectid
 
 ## devDependencies:
 
