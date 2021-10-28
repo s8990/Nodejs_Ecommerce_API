@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const UserModel = require('../models/User');
 
+const { validateCreateUser } = require('../helpers/validators/UserValidator');
+
 const getUsers = async (req, res) => {
     const users = await UserModel.find().select('name username phone email');
 
@@ -44,25 +46,37 @@ const getUsersCount = async (req, res) => {
 };
 
 const addUser = async (req, res) => {
-    let user = new UserModel({
-        name: req.body.name,
-        username: req.body.username,
-        email: req.body.email,
-        password: bcrypt.hashSync(req.body.password, 10),
-        phone: req.body.phone,
-        isAdmin: req.body.isAdmin,
-        address: req.body.address,
-        postalCode: req.body.postalCode,
-        city: req.body.city,
-        country: req.body.country,
-    });
-    user = await user.save();
+    try {
+        const { error } = validateCreateUser(req.body);
+        if (error) {
+            return res.status(400).json({ error: error.message });
+        }
 
-    if (!user) {
-        return res.status(400).send('Creating user failed!');
+        let user = new UserModel({
+            name: req.body.name,
+            username: req.body.username,
+            email: req.body.email,
+            password: bcrypt.hashSync(req.body.password, 10),
+            phone: req.body.phone,
+            isAdmin: req.body.isAdmin,
+            address: req.body.address,
+            postalCode: req.body.postalCode,
+            city: req.body.city,
+            country: req.body.country,
+        });
+        user = await user.save();
+
+        if (!user) {
+            return res.status(400).send('Creating user failed!');
+        }
+
+        res.send(user);
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            error: error,
+        });
     }
-
-    res.send(user);
 };
 
 const deleteUser = (req, res) => {
