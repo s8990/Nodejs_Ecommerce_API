@@ -91,7 +91,7 @@ const addProduct = async (req, res) => {
 
 const editProduct = async (req, res) => {
     try {
-        const { error } = validateCreateProduct(req.body);
+        const { error } = validateEditProduct(req.body);
         if (error) {
             return res.status(400).json({ error: error.message });
         }

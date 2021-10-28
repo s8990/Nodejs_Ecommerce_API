@@ -1,5 +1,10 @@
 const CategoryModel = require('../models/Category');
 
+const {
+    validateCreateCategory,
+    validateEditCategory,
+} = require('../helpers/validators/CategoryValidator');
+
 const getCategories = async (req, res) => {
     const categories = await CategoryModel.find();
 
@@ -24,36 +29,60 @@ const getCategoryById = async (req, res) => {
 };
 
 const addCategory = async (req, res) => {
-    let category = new CategoryModel({
-        name: req.body.name,
-        icon: req.body.icon,
-        color: req.body.color,
-    });
-    category = await category.save();
+    try {
+        const { error } = validateCreateCategory(req.body);
+        if (error) {
+            return res.status(400).json({ error: error.message });
+        }
 
-    if (!category) {
-        return res.status(400).send('Creating category failed!');
-    }
-
-    res.send(category);
-};
-
-const editCategory = async (req, res) => {
-    const category = await CategoryModel.findByIdAndUpdate(
-        req.params.id,
-        {
+        let category = new CategoryModel({
             name: req.body.name,
             icon: req.body.icon,
             color: req.body.color,
-        },
-        { new: true }
-    );
+        });
+        category = await category.save();
 
-    if (!category) {
-        return res.status(500).send('Updating category failed!');
+        if (!category) {
+            return res.status(400).send('Creating category failed!');
+        }
+
+        res.send(category);
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            error: error,
+        });
     }
+};
 
-    res.send(category);
+const editCategory = async (req, res) => {
+    try {
+        const { error } = validateEditCategory(req.body);
+        if (error) {
+            return res.status(400).json({ error: error.message });
+        }
+
+        const category = await CategoryModel.findByIdAndUpdate(
+            req.params.id,
+            {
+                name: req.body.name,
+                icon: req.body.icon,
+                color: req.body.color,
+            },
+            { new: true }
+        );
+
+        if (!category) {
+            return res.status(500).send('Updating category failed!');
+        }
+
+        res.send(category);
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            error: error,
+        });
+    }
 };
 
 const deleteCategory = (req, res) => {
