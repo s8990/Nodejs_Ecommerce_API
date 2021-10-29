@@ -70,13 +70,23 @@ const addUser = async (req, res) => {
             return res.status(400).send('Creating user failed!');
         }
 
-        res.send(user);
+        res.status(201).json({
+            success: true,
+            user: user,
+        });
     } catch (error) {
         return res.status(400).json({
             success: false,
             error: error,
         });
     }
+};
+
+const updateUser = (req, res) => {
+    return res.status(200).json({
+        success: true,
+        message: 'The user is updated',
+    });
 };
 
 const deleteUser = (req, res) => {
@@ -104,4 +114,5 @@ module.exports = {
     getUsersCount,
     addUser,
     deleteUser,
+    updateUser,
 };

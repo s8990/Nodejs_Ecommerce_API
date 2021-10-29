@@ -1,25 +1,50 @@
 // Import dependency
-require('dotenv/config');
-const api = process.env.API_URL;
-const PORT = process.env.PORT || 8000;
 const express = require('express');
-const app = express();
-const connectDB = require('./configurations/db');
 const morgan = require('morgan');
 const cors = require('cors');
+const path = require('path');
+require('dotenv/config');
+
+// Import Helpers
+const connectDB = require('./configurations/db');
 const authJwt = require('./helpers/jwt');
 const errorHandler = require('./helpers/errorHandler');
 
+// Settings
+const app = express();
+const api = process.env.API_URL;
+const PORT = process.env.PORT || 8000;
+
+//swagger
+const swaggerUI = require('swagger-ui-express');
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerSpec = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Node E-Commerce API',
+            version: '1.0.0',
+        },
+        servers: [
+            {
+                url: `http://localhost:${PORT}`,
+            },
+        ],
+    },
+    apis: [`${path.join(__dirname, './routes/*.js')}`],
+};
+
+// Database Connections Configurations
 connectDB();
 
-// Import routes
+// Import Routes
 const authRoutes = require('./routes/auth');
 const categoriesRoutes = require('./routes/categories');
 const productsRoutes = require('./routes/products');
 const usersRoutes = require('./routes/users');
 const ordersRoutes = require('./routes/orders');
 
-// Import middlewares into express
+// Middlewares
 app.use(cors());
 app.options('*', cors());
 app.use(express.json({ limit: '100mb' }));
@@ -27,6 +52,11 @@ app.use(morgan('tiny'));
 app.use(authJwt());
 app.use('/public/uploads', express.static(__dirname + '/public/uploads'));
 app.use(errorHandler);
+app.use(
+    '/api-doc',
+    swaggerUI.serve,
+    swaggerUI.setup(swaggerJsDoc(swaggerSpec))
+);
 
 // Setup routes
 app.use(`${api}/auth`, authRoutes);
