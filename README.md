@@ -15,6 +15,8 @@
 -   multer
 -   joi
 -   joi-objectid
+-   swagger-jsdoc
+-   swagger-ui-express
 
 ## devDependencies:
 
