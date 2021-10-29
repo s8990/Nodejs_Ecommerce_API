@@ -1,6 +1,8 @@
 const OrderModel = require('../models/Order');
 const OrderItemModel = require('../models/OrderItem');
 
+const { validateCreateOrder } = require('../helpers/validators/OrderValidator');
+
 const getOrders = async (req, res) => {
     const orders = await OrderModel.find()
         .populate('user', 'username')
@@ -30,6 +32,10 @@ const getOrderById = async (req, res) => {
 
 const addOrder = async (req, res) => {
     try {
+        const { error } = validateCreateOrder(req.body);
+        if (error) {
+            return res.status(400).json({ error: error });
+        }
         const orderItemsIds = Promise.all(
             req.body.orderItems.map(async (orderItem) => {
                 let newOrderItem = new OrderItemModel({
@@ -55,9 +61,6 @@ const addOrder = async (req, res) => {
 
         const totalPrice = totalPrices.reduce((a, b) => a + b, 0);
 
-        console.log(totalPrice);
-
-        console.log(orderItemsIds);
         let order = new OrderModel({
             orderItems: orderItemsIdsResolved,
             shippingAddress: req.body.shippingAddress,
